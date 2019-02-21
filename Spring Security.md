@@ -1,13 +1,15 @@
-#Spring Security 架构
+# Spring Security 架构
 本指南是Spring Secutity的入门，提供了对框架的设计和基本构建块的深入了解。我们只介绍了应用程序安全性的知识，
 但是这样做可以消除使用Spring security的开发人员所经历的一些困惑。为了做到这一点，我们来看看在web应用程序中使用过滤器和更一般地使用方法注释
 应用安全性的方式。当您需要在较高的层次上理解安全应用程序如何工作，以及如何指定它，或者仅仅需要学习如何考虑应用程序安全性时，使用本指南。
 
 本指南不打算作为解决最基本问题的手册或秘方(还有其他来源)，但它对初学者和专家都很有用。Spring Boot也经常被提到，因为它为安全应用程序提供了一些默认行为，了解它如何适应整个体系结构非常有用。所有这些原则同样适用于不使用Spring Boot的应用程序。
 
-##Authentication and Access Control(身份验证和访问控制)
+[TOC]
+
+## Authentication and Access Control(身份验证和访问控制)
 应用程序安全性归结为两个或多或少独立的问题:身份验证(您是谁?)和授权(允许您做什么?)有时人们会说“访问控制”而不是“授权”，这可能会让人感到困惑，但是这样想是有帮助的，因为“授权”在其他地方是重载的。Spring Security具有一种旨在将身份验证与授权分离的体系结构，并为这两种身份验证都提供了策略和扩展点。
-###Authentication(身份验证)
+### Authentication(身份验证)
 Authentication的主要接口是`AuthenticationManager`，它只有一个方法
 ```java
 public interface AuthenticationManager {
@@ -53,7 +55,7 @@ public interface AuthenticationProvider {
 
 ![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/1.JPG)
 
-###Customizing Authentication Managers（订制身份验证管理）
+### Customizing Authentication Managers（订制身份验证管理）
 Spring Security提供了一些配置帮助程序，可以快速获得应用程序中设置的常用身份验证管理器特性。最常用的助手是`AuthenticationManagerBuilder`，它非常适合设置内存、JDBC或LDAP用户详细信息，或者添加自定义`UserDetailsService`。
 下面是一个应用程序配置全局(父)`AuthenticationManager`的例子:
 ```java
@@ -97,7 +99,7 @@ Spring Boot提供默认的全局`AuthenticationManager`(只有一个用户)，
 默认值本身就足够安全，您不必太担心它，除非您需要自定义全局`AuthenticationManager`。
 如果进行构建`AuthenticationManager`的任何配置，通常可以在本地对所保护的资源进行配置，
 而不必担心全局默认值。
-###Authorization or Access Control（授权或访问控制）
+### Authorization or Access Control（授权或访问控制）
 身份验证成功后，我们可以继续讨论`authorization`(授权)，这里的核心策略是`AccessDecisionManager`。
 框架提供了三种实现，这三种实现都委托给`AccessDecisionVoter链`，
 有点像`ProviderManager`委托给`AuthenticationProviders`。
@@ -122,7 +124,7 @@ int vote(Authentication authentication, S object,
 `AccessDecisionVoter`支持这种方法，它可以处理表达式并为它们创建上下文。
 要扩展可以处理的表达式的范围，需要一个`SecurityExpressionRoot`的定制实现，有时还需要`SecurityExpressionHandler`。
 
-##Web Secutity
+## Web Secutity
 web层中的Spring Security(对于ui和HTTP后端)是基于`Servlet Filter`的，因此通常首先查看筛选器的角色是有帮助的。下图显示了单个HTTP请求的处理程序的典型分层。
 
 ![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/2.JPG)
@@ -172,7 +174,7 @@ Spring Security filter包含filter chains的列表，并将请求发送给与之
 您要么不把它注册成`@bean`，要么将其包装在`FilterRegistrationBean`中，
 这样的话，该bean就会显式地禁用容器注册。
 
-###Creating and Customizing Filter Chains(创建和定制Filter Chains)
+### Creating and Customizing Filter Chains(创建和定制Filter Chains)
 
 Spring Boot应用程序(使用/**请求匹配器的应用程序)中的
 默认fallback filter chain具有预定义的`SecurityProperties.BASIC_AUTH_ORDER`顺序（默认顺序）。
@@ -198,7 +200,7 @@ public class ApplicationConfigurerAdapter extends WebSecurityConfigurerAdapter {
 每一组资源都有自己的`WebSecurityConfigurerAdapter`，具有唯一的顺序和自己的请求匹配器。
 如果匹配规则重叠，排序最早的过滤链将获胜。
 
-###Request Matching for Dispatch and Authorization(对于调用和授权的请求匹配)
+### Request Matching for Dispatch and Authorization(对于调用和授权的请求匹配)
 Security filter chain(或者等价于`WebSecurityConfigurerAdapter`)有一个请求匹配器，用于决定是否将其应用于HTTP请求。一旦决定使用特定的filter chain，就不应用其他filter chain。但是在filter chain中，通过在`HttpSecurity`配置器中设置额外的匹配器，您可以对授权进行更细粒度的控制。例如：
 ```java
 @Configuration
@@ -217,7 +219,7 @@ public class ApplicationConfigurerAdapter extends WebSecurityConfigurerAdapter {
 
 配置Spring Security最容易犯的错误之一是忘记这些匹配器适用于不同的进程，一个是整个filter chain的请求匹配器，另一个只是选择要应用的访问规则。
 
-###Combining Application Security Rules With Actuator Rules
+### Combining Application Security Rules With Actuator Rules
 >将应用程序安全规则与执行器规则结合起来
 
 如果您正在使用Spring Boot Actuator，那么您可能希望它们是安全的，并且默认情况下是安全的。
@@ -245,7 +247,7 @@ public class ApplicationConfigurerAdapter extends WebSecurityConfigurerAdapter {
 无论是嵌入式的还是其他的。然而，它并没有绑定到Spring MVC或Spring web堆栈的其他部分，
 因此可以在任何servlet应用程序中使用它，例如使用JAX-RS的应用程序。
 
-##Method Security(方法安全性)
+## Method Security(方法安全性)
 
 Spring Security不仅支持保护web应用程序，还支持将访问规则应用于Java方法的执行。
 对于Spring Security，这只是一种不同类型的“受保护资源”。
@@ -283,7 +285,7 @@ public class MyService {
 filter chain提供了用户体验特性，如身份验证和重定向到登录页面等，
 而方法安全性提供了更细粒度的保护。
 
-##Working with Threads
+## Working with Threads
 Spring Security本质上是线程绑定的，因为它需要将当前经过身份验证的主体
 提供给各种下游使用者。基本构建块是`SecurityContext`，它可能包含`Authentication`
 (当用户登录时，它将是显式`authenticated`的`Authentication`)。您总是可以通过
@@ -328,7 +330,7 @@ public String foo(Principal principal) {
 如果您需要编写能够正常工作的代码当Spring Security不使用时，
 (您需要在加载`Authentication`类时更加谨慎)，那么这种方法有时非常有用。
 
-###Processing Secure Methods Asynchronously(异步处理安全方法)
+### Processing Secure Methods Asynchronously(异步处理安全方法)
 由于`SecurityContext`是线程绑定的，如果您希望执行
 调用secure methods的任何
 后台处理，例如使用`@Async`，您需要确保传播了上下文。
