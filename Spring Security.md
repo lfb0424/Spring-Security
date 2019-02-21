@@ -51,7 +51,7 @@ public interface AuthenticationProvider {
 有时，应用程序具有受保护资源的逻辑组(例如，与路径模式`/api/**`匹配的所有web资源)，每个组也可以有自己专用的`AuthenticationManager`。通常，每一个都是`ProviderManager`，它们共享一个父类。
 然后，父类是一种“全局”资源，充当所有提供者的备用资源。
 
-#图片
+![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/1.JPG)
 
 ###Customizing Authentication Managers（订制身份验证管理）
 Spring Security提供了一些配置帮助程序，可以快速获得应用程序中设置的常用身份验证管理器特性。最常用的助手是`AuthenticationManagerBuilder`，它非常适合设置内存、JDBC或LDAP用户详细信息，或者添加自定义`UserDetailsService`。
@@ -125,7 +125,7 @@ int vote(Authentication authentication, S object,
 ##Web Secutity
 web层中的Spring Security(对于ui和HTTP后端)是基于`Servlet Filter`的，因此通常首先查看筛选器的角色是有帮助的。下图显示了单个HTTP请求的处理程序的典型分层。
 
-#图片1
+![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/2.JPG)
 
 客户机向应用程序发送一个请求，container会根据请求URI的路径决定应用哪个filter和哪个servlet。
 一个servlet最多只能处理一个request，但是filter形成了一个chain，所以它们是有序的，事实上，
@@ -142,8 +142,8 @@ Spring Secutity作为一个独立的Filter放在Chain种，它的具体类型是
 (如果Filter来包裹request，修改其行为，Spring Boot应用程序期望Filter具有的最大顺序)。
 但是，它的意义不止于此:从container的角度来看，Spring Security是一个Filter，但是在它内部还有其他Filter，每个Filter都扮演着特殊的角色。这里有一个图片:
 
-#图片2
-图2。Spring Security是一个独立的物理`Filter`，但将处理委托给一个内部过滤器链
+![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/3.JPG)
+图2。Spring Security是一个独立的物理`Filter`，但将处理委托给一个内部filter chain
 
 
 实际上，security filter中甚至还有一个间接层:它通常作为一个`DelegatingFilterProxy`被安装在container中，它不一定是Spring `@Bean`。
@@ -155,7 +155,8 @@ Spring Security filter包含filter chains的列表，并将请求发送给与之
 下图显示了基于匹配请求路径的发送(`/foo/**`匹配在`/**`之前)。这是非常常见的，但不是匹配请求的唯一方法。
 这个发送过程最重要的特性是只有一个链处理请求。
 
-#图片3
+![Image test](https://github.com/lfb0424/Spring-Security/blob/master/img/4.JPG)
+
 图3。Spring Security `FilterChainProxy`将请求发送到匹配的第一个链。
 
 
